@@ -14,7 +14,6 @@ dist-ssr
 *.local
 output.pdf
 output.txt
-.env
 
 # Editor directories and files
 .vscode/*
@@ -26,3 +25,4 @@ output.txt
 *.njsproj
 *.sln
 *.sw?
+.env
