@@ -2,25 +2,29 @@ import { connect } from "puppeteer-real-browser";
 import fs from "fs";
 import path from "path";
 import { convertPDF } from "./convert.js";
+import dotenv from "dotenv";
+import { time } from "console";
+dotenv.config();
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
+const pdfName = "output";
 async function main(login) {
   const response = await connect({
     fingerprint: false,
 
     turnstile: true,
-    userDataDir: "C:\\Users\\lenovo\\AppData\\Local\\Google\\Chrome\\User Data",
+    // userDataDir: "C:\\Users\\lenovo\\AppData\\Local\\Google\\Chrome\\User Data",
     // args: ['--profile-directory="Profile 1"'],
 
     tf: true,
   });
   const { page, browser } = response;
-  const password = "toiyeubachduongvoibaobanthan";
-  const email = "chinhcaocu2@gmail.com";
-  const bookLink = "https://archive.org/details/babcockgenealogy00babc";
+  const password = process.env.PASSWORD;
+  const email = process.env.EMAIL;
+  const bookLink =
+    "https://archive.org/details/gu_manualalphabe00ohio/mode/2up";
 
   try {
     if (login) {
@@ -41,19 +45,20 @@ async function main(login) {
       "span.BRcurrentpage",
       (el) => el.textContent
     );
-    const numbers = numberOfPagesRaw.match(/\d+/g).map(Number);
-    const numberOfPages = Math.max(...numbers);
+    const numberOfPages = Math.max(
+      ...numberOfPagesRaw.match(/\d+/g).map(Number)
+    );
     const zoomInButtonSelector = "button.BRicon.zoom_in";
     const zoomInCount = 15;
     for (let i = 0; i < zoomInCount; i++) {
       await page.click(zoomInButtonSelector);
     }
     let currentPage = 1;
+    let finished = false;
     let savedPage = [];
-    while (currentPage <= numberOfPages) {
+    while (!finished) {
       await page.waitForSelector("img.BRpageimage");
       const pages = await page.$$("img.BRpageimage");
-
       const srcs = await Promise.all(
         pages.map(async (element) => {
           return await page.evaluate((el) => el.src, element);
@@ -76,8 +81,19 @@ async function main(login) {
         }
       }
       await page.click("button.BRicon.book_right.book_flip_next");
+      const currentPageTrackerTemp = await page.$eval(
+        "span.BRcurrentpage",
+        (el) => el.textContent
+      );
+      const currentPageTracker = Math.min(
+        ...currentPageTrackerTemp.match(/\d+/g).map(Number)
+      );
+      if (currentPageTracker == numberOfPages) {
+        finished = true;
+      }
     }
-    convertPDF("output");
+    convertPDF(pdfName);
+    console.log(`Finished and exported to ${pdfName}.pdf`);
     await browser.close();
   } catch (error) {
     console.log(error);
