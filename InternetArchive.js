@@ -1,12 +1,13 @@
 import { connect } from "puppeteer-real-browser";
 import fs from "fs";
 import path from "path";
+import { convertPDF } from "./convert.js";
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function main() {
+async function main(login) {
   const response = await connect({
     fingerprint: false,
 
@@ -20,19 +21,21 @@ async function main() {
   const password = "toiyeubachduongvoibaobanthan";
   const email = "chinhcaocu2@gmail.com";
   const bookLink =
-    "https://archive.org/details/completesolution0000ande/page/821/mode/2up";
+    "https://archive.org/details/cherokeehymnbook00boud/mode/2up";
 
   try {
-    await page.setViewport({ width: 1280, height: 720 });
+    if (login) {
+      await page.setViewport({ width: 1280, height: 720 });
 
-    await page.goto("https://archive.org/account/login", { timeout: 60000 });
-    await page.waitForSelector("input.form-element.input-email");
-    await page.type("input.form-element.input-email", email);
-    await page.type("input.form-element.input-password", password);
-    await page.click(
-      "input.btn.btn-primary.btn-submit.input-submit.js-submit-login"
-    );
-    await sleep(7000);
+      await page.goto("https://archive.org/account/login", { timeout: 60000 });
+      await page.waitForSelector("input.form-element.input-email");
+      await page.type("input.form-element.input-email", email);
+      await page.type("input.form-element.input-password", password);
+      await page.click(
+        "input.btn.btn-primary.btn-submit.input-submit.js-submit-login"
+      );
+      await sleep(3000);
+    }
     await page.goto(bookLink, { timeout: 60000 });
     await page.waitForSelector("span.BRcurrentpage");
     const numberOfPagesRaw = await page.$eval(
@@ -40,14 +43,13 @@ async function main() {
       (el) => el.textContent
     );
     const numbers = numberOfPagesRaw.match(/\d+/g).map(Number);
-    const numberOfPages = Math.max(...numbers) * 3;
+    const numberOfPages = Math.max(...numbers);
     const zoomInButtonSelector = "button.BRicon.zoom_in";
-    const zoomInCount = 12;
+    const zoomInCount = 15;
     for (let i = 0; i < zoomInCount; i++) {
       await page.click(zoomInButtonSelector);
     }
-    await sleep(5000);
-    let currentPage = 830;
+    let currentPage = 1;
     let savedPage = [];
     while (currentPage <= numberOfPages) {
       await page.waitForSelector("img.BRpageimage");
@@ -66,7 +68,7 @@ async function main() {
           const buffer = await viewSource.buffer();
           const filePath = path.join(
             `${process.cwd()}/images`,
-            `page${currentPage}.png`
+            `${currentPage}.png`
           );
           currentPage += 1;
           fs.writeFileSync(filePath, buffer);
@@ -75,11 +77,12 @@ async function main() {
         }
       }
       await page.click("button.BRicon.book_right.book_flip_next");
-      await sleep(1500);
     }
+    await convertPDF();
+    await browser.close();
   } catch (error) {
     console.log(error);
   }
 }
 
-main();
+main(true);

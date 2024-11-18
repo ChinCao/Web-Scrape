@@ -88,7 +88,7 @@ async function main() {
     // );
 
     await page.goto(
-      "https://markhint.in/topical/a-levels/9702/results?papers=2;1&topics=%20CH%201%20-%20PHYSICAL%20QUANTITIES%20%26%20UNITS;%20CH%202%20-%20MEASUREMENT%20TECHNIQUES;%20CH%203%20-%20KINEMATICS;%20CH%204%20-%20DYNAMICS;%20CH%205%20-%20FORCES%2C%20DENSITY%20%26%20PRESSURE;%20CH%206%20-%20WORK%2C%20ENERGY%20%26%20POWER&years=2023;2016;2012;2021;2022;2020;2019;2018;2017;2015;2014;2013;2011;2010;2009&sessions=May/June;Oct/Nov&variants=2;3;1&levels=&units=&difficulty=3;4;5&page=0"
+      "https://markhint.in/topical/a-levels/9702/results?papers=2;1&topics=%20CH%201%20-%20PHYSICAL%20QUANTITIES%20%26%20UNITS;%20CH%202%20-%20MEASUREMENT%20TECHNIQUES;%20CH%203%20-%20KINEMATICS;%20CH%204%20-%20DYNAMICS;%20CH%205%20-%20FORCES%2C%20DENSITY%20%26%20PRESSURE;%20CH%206%20-%20WORK%2C%20ENERGY%20%26%20POWER&years=2023;2016;2012;2021;2022;2020;2019;2018;2017;2015;2014;2013;2011;2010;2009&sessions=May/June;Oct/Nov&variants=2;3;1&levels=&units=&difficulty=3;4;5;2&page=0"
     );
 
     await page.waitForSelector(".sc-hjjlnc.hvcoPd");
