@@ -3,8 +3,8 @@ import pdf from "pdfkit";
 import sizeOf from "image-size";
 
 const imageDirectory = "./images";
-export const convertPDF = async () => {
-  fs.readdir(imageDirectory, async (err, files) => {
+export const convertPDF = (name) => {
+  fs.readdir(imageDirectory, (err, files) => {
     const dimensions = sizeOf(
       `${imageDirectory}/${files.filter((file) => file.endsWith(".png"))[1]}`
     );
@@ -13,7 +13,7 @@ export const convertPDF = async () => {
       size: [dimensions.width, dimensions.height],
       margins: { top: 0, bottom: 0, left: 0, right: 0 },
     });
-    doc.pipe(fs.createWriteStream("output.pdf"));
+    doc.pipe(fs.createWriteStream(`${name}.pdf`));
     let minValue = Infinity;
     let maxValue = -Infinity;
     if (err) {
@@ -48,5 +48,3 @@ export const convertPDF = async () => {
     doc.end();
   });
 };
-
-convertPDF();

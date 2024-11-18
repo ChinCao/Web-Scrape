@@ -20,8 +20,7 @@ async function main(login) {
   const { page, browser } = response;
   const password = "toiyeubachduongvoibaobanthan";
   const email = "chinhcaocu2@gmail.com";
-  const bookLink =
-    "https://archive.org/details/cherokeehymnbook00boud/mode/2up";
+  const bookLink = "https://archive.org/details/babcockgenealogy00babc";
 
   try {
     if (login) {
@@ -78,7 +77,7 @@ async function main(login) {
       }
       await page.click("button.BRicon.book_right.book_flip_next");
     }
-    await convertPDF();
+    convertPDF("output");
     await browser.close();
   } catch (error) {
     console.log(error);
