@@ -13,6 +13,8 @@ dist
 dist-ssr
 *.local
 output.pdf
+output.txt
+
 
 # Editor directories and files
 .vscode/*
