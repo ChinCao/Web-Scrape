@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import { convertPDF } from "./convert.js";
 import dotenv from "dotenv";
-import { time } from "console";
 dotenv.config();
 
 function sleep(ms) {
@@ -30,16 +29,24 @@ async function main(login) {
     if (login) {
       await page.setViewport({ width: 1280, height: 720 });
 
-      await page.goto("https://archive.org/account/login", { timeout: 60000 });
+      await page.goto("https://archive.org/account/login", {
+        timeout: 60000,
+        waitUntil: "networkidle0",
+      });
       await page.waitForSelector("input.form-element.input-email");
       await page.type("input.form-element.input-email", email);
       await page.type("input.form-element.input-password", password);
       await page.click(
         "input.btn.btn-primary.btn-submit.input-submit.js-submit-login"
       );
-      await sleep(3000);
+      await page.waitForNetworkIdle({ idleTime: 10 });
     }
-    await page.goto(bookLink, { timeout: 60000 });
+
+    await page.goto(bookLink, {
+      timeout: 60000,
+      waitUntil: "networkidle0",
+    });
+
     await page.waitForSelector("span.BRcurrentpage");
     const numberOfPagesRaw = await page.$eval(
       "span.BRcurrentpage",
