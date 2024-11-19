@@ -9,10 +9,10 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 const pdfName = "output";
-async function main(login) {
+async function main(login, isHeadless) {
   const response = await connect({
     fingerprint: false,
-
+    headless: isHeadless,
     turnstile: true,
     // userDataDir: "C:\\Users\\lenovo\\AppData\\Local\\Google\\Chrome\\User Data",
     // args: ['--profile-directory="Profile 1"'],
@@ -40,6 +40,7 @@ async function main(login) {
         "input.btn.btn-primary.btn-submit.input-submit.js-submit-login"
       );
       await page.waitForNetworkIdle({ idleTime: 10 });
+      console.log("Logged in");
     }
 
     await page.goto(bookLink, {
@@ -63,6 +64,7 @@ async function main(login) {
     let currentPage = 1;
     let finished = false;
     let savedPage = [];
+    console.log("Navigated to book page");
     while (!finished) {
       await page.waitForSelector("img.BRpageimage");
       const pages = await page.$$("img.BRpageimage");
@@ -81,6 +83,7 @@ async function main(login) {
             `${process.cwd()}/images`,
             `${currentPage}.png`
           );
+          console.log(`Finished scraping page ${currentPage}`);
           currentPage += 1;
           fs.writeFileSync(filePath, buffer);
           await imagePage.close();
@@ -107,4 +110,4 @@ async function main(login) {
   }
 }
 
-main(true);
+main(true, true);
