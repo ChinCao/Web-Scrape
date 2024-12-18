@@ -112,18 +112,6 @@ const data = {
 
 function formatQuestion(startIndex, endIndex) {
   return [
-    // {
-    //   updateParagraphStyle: {
-    //     range: {
-    //       startIndex: startIndex,
-    //       endIndex: endIndex,
-    //     },
-    //     paragraphStyle: {
-    //       namedStyleType: "NORMAL_TEXT",
-    //     },
-    //     fields: "namedStyleType",
-    //   },
-    // },
     {
       updateTextStyle: {
         range: {
@@ -193,21 +181,9 @@ function formatTitle(startIndex, endIndex) {
   ];
 }
 
-function formatAnswer(startIndex, endIndex, link) {
+function formatAnswer(startIndex, endIndex, link, url) {
   if (link) {
     return [
-      //   {
-      //     updateParagraphStyle: {
-      //       range: {
-      //         startIndex: startIndex,
-      //         endIndex: endIndex,
-      //       },
-      //       paragraphStyle: {
-      //         namedStyleType: "NORMAL_TEXT",
-      //       },
-      //       fields: "namedStyleType",
-      //     },
-      //   },
       {
         updateTextStyle: {
           range: {
@@ -216,14 +192,14 @@ function formatAnswer(startIndex, endIndex, link) {
           },
           textStyle: {
             link: {
-              url: "www.example.com",
+              url: url,
             },
             foregroundColor: {
               color: {
                 rgbColor: {
-                  red: 0,
-                  green: 0,
-                  blue: 0,
+                  red: 17 / 255,
+                  green: 85 / 255,
+                  blue: 204 / 255,
                 },
               },
             },
@@ -234,18 +210,6 @@ function formatAnswer(startIndex, endIndex, link) {
     ];
   } else {
     return [
-      //   {
-      //     updateParagraphStyle: {
-      //       range: {
-      //         startIndex: startIndex,
-      //         endIndex: endIndex,
-      //       },
-      //       paragraphStyle: {
-      //         namedStyleType: "NORMAL_TEXT",
-      //       },
-      //       fields: "namedStyleType",
-      //     },
-      //   },
       {
         updateTextStyle: {
           range: {
@@ -310,54 +274,52 @@ const fieldsIndexTable = {
   general_questions: "Câu hỏi chung",
 };
 
-const main_fields = Object.keys(data).filter((item) => item !== "user_id");
 let indexTracker = 1;
-const personal_title = addText(fieldsIndexTable["personal_info"], "title");
-text_request.push(personal_title[0]);
-style_request.push(...formatTitle(indexTracker, personal_title[1]));
-indexTracker = indexTracker + personal_title[1];
-Object.entries(personalIndexTable).forEach(([key, value]) => {
-  const personal_question = addText(value, "question");
-  text_request.push(personal_question[0]);
+function GoogleDocParser(title, questions, answers) {
+  console.log(indexTracker);
+  const field_title = addText(title, "title");
+  text_request.push(field_title[0]);
   style_request.push(
-    ...formatQuestion(indexTracker, indexTracker + personal_question[1])
+    ...formatTitle(indexTracker, indexTracker + field_title[1])
   );
-  indexTracker = indexTracker + personal_question[1];
-  const personal_answer = addText(data["personal_info"][key], "answer");
-  text_request.push(personal_answer[0]);
-  const isLink = key == "facebook" || key == "instagram" ? true : false;
-  style_request.push(
-    ...formatAnswer(indexTracker, indexTracker + personal_answer[1], isLink)
-  );
-  indexTracker = indexTracker + personal_answer[1];
-});
+  indexTracker = indexTracker + field_title[1];
+  Object.entries(questions).forEach(([key, value]) => {
+    const question = addText(
+      title == "Thông tin cá nhân" ? value : value["question"]
+    );
+    text_request.push(question[0]);
+    style_request.push(
+      ...formatQuestion(indexTracker, indexTracker + question[1])
+    );
+    indexTracker = indexTracker + question[1];
+    const answer = addText(
+      title == "Thông tin cá nhân" ? answers[key] : answers[key]["answer"],
+      "answer"
+    );
+    text_request.push(answer[0]);
+    const isLink = key == "facebook" || key == "instagram" ? true : false;
+    style_request.push(
+      ...formatAnswer(
+        indexTracker,
+        indexTracker + answer[1],
+        isLink,
+        answers[key]
+      )
+    );
+    indexTracker = indexTracker + answer[1];
+  });
+}
 
-const general_title = addText(fieldsIndexTable["general_questions"], "title");
-text_request.push(general_title[0]);
-style_request.push(
-  ...formatTitle(indexTracker, indexTracker + general_title[1])
+GoogleDocParser(
+  fieldsIndexTable["personal_info"],
+  personalIndexTable,
+  data["personal_info"]
 );
-indexTracker = indexTracker + general_title[1];
-Object.entries(data.general_questions.response).forEach(([key, value]) => {
-  const general_question = addText(value["question"], "question");
-  text_request.push(general_question[0]);
-  style_request.push(
-    ...formatQuestion(indexTracker, indexTracker + general_question[1])
-  );
-  indexTracker = indexTracker + general_question[1];
-  const personal_answer = addText(
-    data["general_questions"]["response"][key]["answer"],
-    "answer"
-  );
-  text_request.push(personal_answer[0]);
-  const isLink = key == "facebook" || key == "instagram" ? true : false;
-  style_request.push(
-    ...formatAnswer(indexTracker, indexTracker + personal_answer[1], isLink)
-  );
-  indexTracker = indexTracker + personal_answer[1];
-});
+GoogleDocParser(
+  fieldsIndexTable["general_questions"],
+  data.general_questions.response,
+  data["general_questions"]["response"]
+);
 
-// console.log(indexTracker);
-// console.log(indexTracker);
 // printObject(text_request);
-// printObject(style_request);
+printObject(style_request);
