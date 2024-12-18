@@ -23,7 +23,7 @@ async function main(login, isHeadless) {
   const password = process.env.PASSWORD;
   const email = process.env.EMAIL;
   const bookLink =
-    "https://archive.org/details/gu_manualalphabe00ohio/mode/2up";
+    "https://archive.org/details/moralsdogmaofanc00pike/mode/2up";
 
   try {
     if (login) {
@@ -57,7 +57,7 @@ async function main(login, isHeadless) {
       ...numberOfPagesRaw.match(/\d+/g).map(Number)
     );
     const zoomInButtonSelector = "button.BRicon.zoom_in";
-    const zoomInCount = 15;
+    const zoomInCount = 50;
     for (let i = 0; i < zoomInCount; i++) {
       await page.click(zoomInButtonSelector);
     }
