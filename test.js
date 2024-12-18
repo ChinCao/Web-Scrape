@@ -113,6 +113,18 @@ const data = {
 function formatQuestion(startIndex, endIndex) {
   return [
     {
+      updateParagraphStyle: {
+        range: {
+          startIndex: startIndex,
+          endIndex: endIndex,
+        },
+        paragraphStyle: {
+          namedStyleType: "HEADING_2",
+        },
+        fields: "namedStyleType",
+      },
+    },
+    {
       updateTextStyle: {
         range: {
           startIndex: startIndex,
@@ -120,6 +132,10 @@ function formatQuestion(startIndex, endIndex) {
         },
         textStyle: {
           bold: true,
+          fontSize: {
+            magnitude: 13,
+            unit: "PT",
+          },
           foregroundColor: {
             color: {
               rgbColor: {
@@ -130,7 +146,7 @@ function formatQuestion(startIndex, endIndex) {
             },
           },
         },
-        fields: "bold,foregroundColor",
+        fields: "bold,foregroundColor,fontSize",
       },
     },
   ];
@@ -194,6 +210,10 @@ function formatAnswer(startIndex, endIndex, link, url) {
             link: {
               url: url,
             },
+            fontSize: {
+              magnitude: 13,
+              unit: "PT",
+            },
             foregroundColor: {
               color: {
                 rgbColor: {
@@ -204,7 +224,7 @@ function formatAnswer(startIndex, endIndex, link, url) {
               },
             },
           },
-          fields: "link,foregroundColor",
+          fields: "link,foregroundColor,fontSize",
         },
       },
     ];
@@ -218,6 +238,10 @@ function formatAnswer(startIndex, endIndex, link, url) {
           },
 
           textStyle: {
+            fontSize: {
+              magnitude: 13,
+              unit: "PT",
+            },
             foregroundColor: {
               color: {
                 rgbColor: {
@@ -228,7 +252,7 @@ function formatAnswer(startIndex, endIndex, link, url) {
               },
             },
           },
-          fields: "foregroundColor",
+          fields: "foregroundColor,fontSize",
         },
       },
     ];
@@ -272,20 +296,22 @@ const personalIndexTable = {
 const fieldsIndexTable = {
   personal_info: "Thông tin cá nhân",
   general_questions: "Câu hỏi chung",
+  department_questions: "Câu hỏi chuyên môn",
 };
 
 let indexTracker = 1;
 function GoogleDocParser(title, questions, answers) {
-  console.log(indexTracker);
   const field_title = addText(title, "title");
   text_request.push(field_title[0]);
   style_request.push(
     ...formatTitle(indexTracker, indexTracker + field_title[1])
   );
   indexTracker = indexTracker + field_title[1];
-  Object.entries(questions).forEach(([key, value]) => {
+  Object.entries(questions).forEach(([key, value], index) => {
     const question = addText(
-      title == "Thông tin cá nhân" ? value : value["question"]
+      title == "Thông tin cá nhân"
+        ? `${index + 1}. ` + value
+        : `${index + 1}. ` + value["question"]
     );
     text_request.push(question[0]);
     style_request.push(
@@ -319,6 +345,11 @@ GoogleDocParser(
   fieldsIndexTable["general_questions"],
   data.general_questions.response,
   data["general_questions"]["response"]
+);
+GoogleDocParser(
+  fieldsIndexTable["department_questions"],
+  data.department_questions.response["pr-ext"]["questions"],
+  data["department_questions"]["response"]["pr-ext"]["questions"]
 );
 
 // printObject(text_request);
