@@ -1,7 +1,7 @@
-import { connect } from "puppeteer-real-browser";
+import {connect} from "puppeteer-real-browser";
 import fs from "fs";
 import path from "path";
-import { convertPDF } from "./convert.js";
+import {convertPDF} from "./convert.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -14,20 +14,16 @@ async function main(login, isHeadless) {
     fingerprint: false,
     headless: isHeadless,
     turnstile: true,
-    // userDataDir: "C:\\Users\\lenovo\\AppData\\Local\\Google\\Chrome\\User Data",
-    // args: ['--profile-directory="Profile 1"'],
-
     tf: true,
   });
-  const { page, browser } = response;
+  const {page, browser} = response;
   const password = process.env.PASSWORD;
   const email = process.env.EMAIL;
-  const bookLink =
-    "https://archive.org/details/moralsdogmaofanc00pike/mode/2up";
+  const bookLink = "https://archive.org/details/moralsdogmaofanc00pike/mode/2up";
 
   try {
     if (login) {
-      await page.setViewport({ width: 1280, height: 720 });
+      await page.setViewport({width: 1280, height: 720});
 
       await page.goto("https://archive.org/account/login", {
         timeout: 60000,
@@ -36,10 +32,8 @@ async function main(login, isHeadless) {
       await page.waitForSelector("input.form-element.input-email");
       await page.type("input.form-element.input-email", email);
       await page.type("input.form-element.input-password", password);
-      await page.click(
-        "input.btn.btn-primary.btn-submit.input-submit.js-submit-login"
-      );
-      await page.waitForNetworkIdle({ idleTime: 10 });
+      await page.click("input.btn.btn-primary.btn-submit.input-submit.js-submit-login");
+      await page.waitForNetworkIdle({idleTime: 10});
       console.log("Logged in");
     }
 
@@ -49,13 +43,8 @@ async function main(login, isHeadless) {
     });
 
     await page.waitForSelector("span.BRcurrentpage");
-    const numberOfPagesRaw = await page.$eval(
-      "span.BRcurrentpage",
-      (el) => el.textContent
-    );
-    const numberOfPages = Math.max(
-      ...numberOfPagesRaw.match(/\d+/g).map(Number)
-    );
+    const numberOfPagesRaw = await page.$eval("span.BRcurrentpage", (el) => el.textContent);
+    const numberOfPages = Math.max(...numberOfPagesRaw.match(/\d+/g).map(Number));
     const zoomInButtonSelector = "button.BRicon.zoom_in";
     const zoomInCount = 50;
     for (let i = 0; i < zoomInCount; i++) {
@@ -77,12 +66,9 @@ async function main(login, isHeadless) {
       for (let imgSrc of srcs) {
         if (!savedPage.includes(imgSrc)) {
           const imagePage = await browser.newPage();
-          const viewSource = await imagePage.goto(imgSrc, { timeout: 60000 });
+          const viewSource = await imagePage.goto(imgSrc, {timeout: 60000});
           const buffer = await viewSource.buffer();
-          const filePath = path.join(
-            `${process.cwd()}/images`,
-            `${currentPage}.png`
-          );
+          const filePath = path.join(`${process.cwd()}/images`, `${currentPage}.png`);
           console.log(`Finished scraping page ${currentPage}`);
           currentPage += 1;
           fs.writeFileSync(filePath, buffer);
@@ -91,13 +77,8 @@ async function main(login, isHeadless) {
         }
       }
       await page.click("button.BRicon.book_right.book_flip_next");
-      const currentPageTrackerTemp = await page.$eval(
-        "span.BRcurrentpage",
-        (el) => el.textContent
-      );
-      const currentPageTracker = Math.min(
-        ...currentPageTrackerTemp.match(/\d+/g).map(Number)
-      );
+      const currentPageTrackerTemp = await page.$eval("span.BRcurrentpage", (el) => el.textContent);
+      const currentPageTracker = Math.min(...currentPageTrackerTemp.match(/\d+/g).map(Number));
       if (currentPageTracker == numberOfPages) {
         finished = true;
       }
