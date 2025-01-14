@@ -3,7 +3,8 @@ import {sleep} from "../utils/utils.js";
 import {PaperParser} from "./PaperParser.js";
 import path from "path";
 import fs from "fs";
-
+import dotenv from "dotenv";
+dotenv.config();
 async function main(subject) {
   async function selectField(fieldcn, field) {
     const parent = await page.$$(fieldcn);
@@ -46,21 +47,29 @@ async function main(subject) {
     headless: false,
     turnstile: true,
     tf: true,
-    args: [
-      "--no-sandbox",
-      "--no-first-run",
-      "--no-zygote",
-      "--disable-dev-shm-usage", // <-- add this one
-    ],
+    args: ["--no-sandbox", "--no-first-run", "--no-zygote", "--disable-dev-shm-usage"],
   });
   const {page, browser} = response;
+  const exammate_login = "https://www.exam-mate.com/login";
   const exammate = "https://www.exam-mate.com/topicalpastpapers";
   try {
     await page.setViewport({width: 1280, height: 720});
+    await page.goto(exammate_login, {
+      timeout: 600000,
+      waitUntil: "networkidle0",
+    });
+
+    await page.waitForSelector("input#emailaddress");
+    await page.type("input#emailaddress", process.env.EXAMMATE_EMAIL);
+    await page.type("input#password", process.env.EXAMMATE_PASS);
+    await page.click("button.btn.btn-primary");
+    await page.waitForNetworkIdle({idleTime: 10});
+
     await page.goto(exammate, {
       timeout: 600000,
       waitUntil: "networkidle0",
     });
+
     await page.evaluate(() => {
       document.body.style.zoom = "0.5";
     });
@@ -110,7 +119,7 @@ async function main(subject) {
             const folderName = dataType == "questions" ? "questions" : "answers";
             const rawPath = path.join(
               process.cwd(),
-              `src/ExamMate/data/${curriculum}/${course}/${folderName}/${chap["chapterName"]}/${PaperParser(text)["year"]}/${
+              `src/ExamMate/data/${curriculum}/${course}/${folderName}/${chap["chapterName"].replace(":", "-")}/${PaperParser(text)["year"]}/${
                 PaperParser(text)["season"]
               }/Paper ${PaperParser(text)["paper"]}/`,
               PaperParser(text)["question_paper"]
@@ -145,6 +154,7 @@ async function main(subject) {
       previousChap = chap["chapter"];
       console.log(`Finished stealing chapter ${chap["chapterName"]}, ${chap["chapter"]}`);
     }
+    console.log(`All data have been stolen from ${subject["subject"]}`);
     await browser.close();
   } catch (error) {
     console.log(error);
@@ -190,32 +200,55 @@ const Chemistry = {
   curriculum: "A-LEVEL",
   subject: "Chemistry(9701)",
   topics: [
-    [
-      {chapter: "CH1", chapterName: "ATOMS, MOLECULES & STOICHIOMETRY"},
-      {chapter: "CH2", chapterName: "ATOMIC STRUCTURE"},
-      {chapter: "CH3", chapterName: "CHEMICAL BONDING"},
-      {chapter: "CH4", chapterName: "STATES OF MATTER"},
-      {chapter: "CH5", chapterName: "CHEMICAL ENERGETICS"},
-      {chapter: "CH6", chapterName: "ELECTROCHEMISTRY"},
-      {chapter: "CH7", chapterName: "EQUILIBRIA"},
-      {chapter: "CH8", chapterName: "REACTION KINETICS"},
-      {chapter: "CH9", chapterName: "THE PERIODIC TABLE: CHEMICAL PERIODICITY"},
-      {chapter: "CH10", chapterName: "GROUP 2"},
-      {chapter: "CH11", chapterName: "GROUP 17"},
-      {chapter: "CH12", chapterName: "AN INTRODUCTION TO THE CHEMISTRY OF TRANSITION ELEMENTS"},
-      {chapter: "CH13", chapterName: "NITROGEN & SULFUR"},
-      {chapter: "CH14", chapterName: "AN INTRODUCTION TO ORGANIC CHEMISTRY"},
-      {chapter: "CH15", chapterName: "HYDROCARBONS"},
-      {chapter: "CH16", chapterName: "HALOGEN DERIVATIVES"},
-      {chapter: "CH17", chapterName: "HYDROXY COMPOUNDS"},
-      {chapter: "CH18", chapterName: "CARBONYL COMPOUNDS"},
-      {chapter: "CH19", chapterName: "CARBOXYLIC ACIDS AND DERIVATIVES"},
-      {chapter: "CH20", chapterName: "NITROGEN COMPOUNDS"},
-      {chapter: "CH21", chapterName: "POLYMERISATION"},
-      {chapter: "CH22", chapterName: "ANALYTICAL TECHNIQUES"},
-      {chapter: "CH23", chapterName: "ORGANIC SYNTHESIS"},
-    ],
+    {chapter: "CH1", chapterName: "ATOMS, MOLECULES & STOICHIOMETRY"},
+    {chapter: "CH2", chapterName: "ATOMIC STRUCTURE"},
+    {chapter: "CH3", chapterName: "CHEMICAL BONDING"},
+    {chapter: "CH4", chapterName: "STATES OF MATTER"},
+    {chapter: "CH5", chapterName: "CHEMICAL ENERGETICS"},
+    {chapter: "CH6", chapterName: "ELECTROCHEMISTRY"},
+    {chapter: "CH7", chapterName: "EQUILIBRIA"},
+    {chapter: "CH8", chapterName: "REACTION KINETICS"},
+    {chapter: "CH9", chapterName: "THE PERIODIC TABLE: CHEMICAL PERIODICITY"},
+    {chapter: "CH10", chapterName: "GROUP 2"},
+    {chapter: "CH11", chapterName: "GROUP 17"},
+    {chapter: "CH12", chapterName: "AN INTRODUCTION TO THE CHEMISTRY OF TRANSITION ELEMENTS"},
+    {chapter: "CH13", chapterName: "NITROGEN & SULFUR"},
+    {chapter: "CH14", chapterName: "AN INTRODUCTION TO ORGANIC CHEMISTRY"},
+    {chapter: "CH15", chapterName: "HYDROCARBONS"},
+    {chapter: "CH16", chapterName: "HALOGEN DERIVATIVES"},
+    {chapter: "CH17", chapterName: "HYDROXY COMPOUNDS"},
+    {chapter: "CH18", chapterName: "CARBONYL COMPOUNDS"},
+    {chapter: "CH19", chapterName: "CARBOXYLIC ACIDS AND DERIVATIVES"},
+    {chapter: "CH20", chapterName: "NITROGEN COMPOUNDS"},
+    {chapter: "CH21", chapterName: "POLYMERISATION"},
+    {chapter: "CH22", chapterName: "ANALYTICAL TECHNIQUES"},
+    {chapter: "CH23", chapterName: "ORGANIC SYNTHESIS"},
+  ],
+};
+const Biology = {
+  curriculum: "A-LEVEL",
+  subject: "Biology(9700)",
+  topics: [
+    // {chapter: "CH1", chapterName: "CELL STRUCTURE"},
+    // {chapter: "CH2", chapterName: "BIOLOGICAL MOLECULES"},
+    // {chapter: "CH3", chapterName: "ENZYMES"},
+    // {chapter: "CH4", chapterName: "CELL MEMBRANES AND TRANSPORT"},
+    // {chapter: "CH5", chapterName: "THE MITOTIC CELL CYCLE"},
+    // {chapter: "CH6", chapterName: "NUCLEIC ACIDS AND PROTEIN SYNTHESIS"},
+    // {chapter: "CH7", chapterName: "TRANSPORT IN PLANTS"},
+    // {chapter: "CH8", chapterName: "TRANSPORT IN MAMMALS"},
+    // {chapter: "CH9", chapterName: "GAS EXCHANGE AND SMOKING"},
+    // {chapter: "CH10", chapterName: "INFECTIOUS DISEASE"},
+    {chapter: "CH11", chapterName: "IMMUNITY"},
+    {chapter: "CH12", chapterName: "ENERGY AND RESPIRATION"},
+    {chapter: "CH13", chapterName: "PHOTOSYNTHESIS"},
+    {chapter: "CH14", chapterName: "HOMEOSTASIS"},
+    {chapter: "CH15", chapterName: "CONTROL AND CO-ORDINATION"},
+    {chapter: "CH16", chapterName: "INHERITED CHANGE"},
+    {chapter: "CH17", chapterName: "SELECTION AND EVOLUTION"},
+    {chapter: "CH18", chapterName: "BIODIVERSITY, CLASSIFICATION AND CONSERVATION"},
+    {chapter: "CH19", chapterName: "GENETIC TECHNOLOGY"},
   ],
 };
 
-await main(Chemistry);
+await main(Biology);
