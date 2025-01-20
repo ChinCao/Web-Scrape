@@ -55,7 +55,7 @@ async function main(subject) {
   try {
     await page.setViewport({width: 1280, height: 720});
     await page.goto(exammate_login, {
-      timeout: 600000,
+      timeout: 6000000,
       waitUntil: "networkidle0",
     });
 
@@ -88,6 +88,10 @@ async function main(subject) {
     await selectField(topicscndropdown, curriculum);
     await selectField(topicscn, "Subject:");
     await selectField("a.dropdown-item", course);
+    for (let i = 2009; i <= 2024; i++) {
+      await selectField(fieldcn, "Year(s):");
+      await selectOption(fieldcndropdownitem, i);
+    }
 
     for (const chap of subject.topics) {
       if (previousChap != undefined) {
@@ -102,11 +106,21 @@ async function main(subject) {
       const pageAmount = await maxValue("li.page-item");
 
       for (let i = 1; i <= pageAmount; i++) {
+        await page.evaluate(() => {
+          const element = document.querySelector(".mb-auto");
+          if (element) {
+            element.scrollTop = 0;
+          }
+        });
+
         const questionsList = await page.$("ul#questions-list1");
         const children = await questionsList.$$("li");
+        await sleep(1000);
         for (const child of children) {
           const text = await page.evaluate((el) => el.textContent, child);
-          await child.click();
+          await page.evaluate((element) => {
+            element.click();
+          }, child);
           async function downloadData(dataType) {
             const parentcn = dataType == "questions" ? "div#question-image-box-1" : "div#answer-image-box-1";
             const questionsParent = await page.$(parentcn);
@@ -131,7 +145,7 @@ async function main(subject) {
             if (srcs.length > 0) {
               for (let i = 0; i < srcs.length; i++) {
                 const imagePage = await browser.newPage();
-                const viewSource = await imagePage.goto(srcs[i], {timeout: 60000});
+                const viewSource = await imagePage.goto(srcs[i], {timeout: 6000000});
                 const buffer = await viewSource.buffer();
                 const filePath = rawPath + `/${PaperParser(text)["question"]}_${i}.png`;
                 fs.writeFileSync(filePath, buffer);
@@ -149,7 +163,6 @@ async function main(subject) {
         }
 
         await selectField("li.page-item", "›");
-        await sleep(500);
       }
       previousChap = chap["chapter"];
       console.log(`Finished stealing chapter ${chap["chapterName"]}, ${chap["chapter"]}`);
@@ -158,6 +171,7 @@ async function main(subject) {
     await browser.close();
   } catch (error) {
     console.log(error);
+    await browser.close();
   }
 }
 
@@ -229,16 +243,16 @@ const Biology = {
   curriculum: "A-LEVEL",
   subject: "Biology(9700)",
   topics: [
-    // {chapter: "CH1", chapterName: "CELL STRUCTURE"},
-    // {chapter: "CH2", chapterName: "BIOLOGICAL MOLECULES"},
-    // {chapter: "CH3", chapterName: "ENZYMES"},
-    // {chapter: "CH4", chapterName: "CELL MEMBRANES AND TRANSPORT"},
-    // {chapter: "CH5", chapterName: "THE MITOTIC CELL CYCLE"},
-    // {chapter: "CH6", chapterName: "NUCLEIC ACIDS AND PROTEIN SYNTHESIS"},
-    // {chapter: "CH7", chapterName: "TRANSPORT IN PLANTS"},
-    // {chapter: "CH8", chapterName: "TRANSPORT IN MAMMALS"},
-    // {chapter: "CH9", chapterName: "GAS EXCHANGE AND SMOKING"},
-    // {chapter: "CH10", chapterName: "INFECTIOUS DISEASE"},
+    {chapter: "CH1", chapterName: "CELL STRUCTURE"},
+    {chapter: "CH2", chapterName: "BIOLOGICAL MOLECULES"},
+    {chapter: "CH3", chapterName: "ENZYMES"},
+    {chapter: "CH4", chapterName: "CELL MEMBRANES AND TRANSPORT"},
+    {chapter: "CH5", chapterName: "THE MITOTIC CELL CYCLE"},
+    {chapter: "CH6", chapterName: "NUCLEIC ACIDS AND PROTEIN SYNTHESIS"},
+    {chapter: "CH7", chapterName: "TRANSPORT IN PLANTS"},
+    {chapter: "CH8", chapterName: "TRANSPORT IN MAMMALS"},
+    {chapter: "CH9", chapterName: "GAS EXCHANGE AND SMOKING"},
+    {chapter: "CH10", chapterName: "INFECTIOUS DISEASE"},
     {chapter: "CH11", chapterName: "IMMUNITY"},
     {chapter: "CH12", chapterName: "ENERGY AND RESPIRATION"},
     {chapter: "CH13", chapterName: "PHOTOSYNTHESIS"},
@@ -250,5 +264,82 @@ const Biology = {
     {chapter: "CH19", chapterName: "GENETIC TECHNOLOGY"},
   ],
 };
+const Psychology = {
+  curriculum: "A-LEVEL",
+  subject: "Psychology (from 2018)(9990)",
+  topics: [
+    {chapter: "CH1", chapterName: "Approaches, Issues and Debates"},
+    {chapter: "CH2", chapterName: "Research Methods"},
+    {chapter: "CH3", chapterName: "Theory: Psychology and Abnormality"},
+    {chapter: "CH4", chapterName: "Theory: Psychology and Consumer Behaviour"},
+    {chapter: "CH5", chapterName: "Theory: Psychology and Health"},
+    {chapter: "CH6", chapterName: "Theory: Psychology and Organisations"},
+    {chapter: "CH7", chapterName: "Clinical Psychology"},
+    {chapter: "CH8", chapterName: "Consumer Psychology"},
+    {chapter: "CH9", chapterName: "Health Psychology"},
+    {chapter: "CH10", chapterName: "Organisational Psychology"},
+  ],
+};
+const Economics = {
+  curriculum: "A-LEVEL",
+  subject: "Economics(9708)",
+  topics: [
+    {chapter: "CH1", chapterName: "Basic Economic Ideas and Resource Allocation"},
+    {chapter: "CH2", chapterName: "The Price System and the Micro Economy"},
+    {chapter: "CH3", chapterName: "Government Microeconomic Intervention"},
+    {chapter: "CH4", chapterName: "The Macro Economy"},
+    {chapter: "CH5", chapterName: "Government Macro Intervention"},
+    {chapter: "CH6", chapterName: "International Economic Issues"},
+  ],
+};
+const Pure1 = {
+  curriculum: "A-LEVEL",
+  subject: "Mathematics Pure Math 1(9709)",
+  topics: [
+    {chapter: "CH1", chapterName: "Coordinates Geometry"},
+    {chapter: "CH2", chapterName: "Functions"},
+    {chapter: "CH3", chapterName: "Intersection Points"},
+    {chapter: "CH4", chapterName: "Differentiation"},
+    {chapter: "CH5", chapterName: "Sequences & Series"},
+    {chapter: "CH6", chapterName: "Binomial Theorem"},
+    {chapter: "CH7", chapterName: "Trigonometry"},
+    {chapter: "CH8", chapterName: "Vectors"},
+    {chapter: "CH9", chapterName: "Integration"},
+    {chapter: "CH10", chapterName: "Radians"},
+  ],
+};
+const FurtherMath = {
+  curriculum: "A-LEVEL",
+  subject: "Further Mathematics(9231)",
+  topics: [
+    {chapter: "CH1", chapterName: "Roots of polynomial equations"},
+    {chapter: "CH2", chapterName: "Rational functions and graphs"},
+    {chapter: "CH3", chapterName: "Summation of series"},
+    {chapter: "CH4", chapterName: "Matrices"},
+    {chapter: "CH5", chapterName: "Polar coordinates"},
+    {chapter: "CH6", chapterName: "Vectors"},
+    {chapter: "CH7", chapterName: "Proof by induction"},
+    {chapter: "CH8", chapterName: "Hyperbolic functions"},
+    {chapter: "CH9", chapterName: "Differentiation"},
+    {chapter: "CH10", chapterName: "Integration"},
+    {chapter: "CH11", chapterName: "Complex numbers"},
+    {chapter: "CH12", chapterName: "Differential equations"},
+    {chapter: "CH13", chapterName: "Momentum and impulse"},
+    {chapter: "CH14", chapterName: "Circular motion"},
+    {chapter: "CH15", chapterName: "Equilibrium of a rigid body under coplanar forces"},
+    {chapter: "CH16", chapterName: "Rotation of a rigid body"},
+    {chapter: "CH17", chapterName: "Simple harmonic motion"},
+    {chapter: "CH18", chapterName: "Further work on distributions"},
+    {chapter: "CH19", chapterName: "Inference using normal and t-distributions"},
+    {chapter: "CH20", chapterName: "X2 Test"},
+    {chapter: "CH21", chapterName: "Bivariate data"},
+    {chapter: "CH22", chapterName: "Projectile motion"},
+    {chapter: "CH23", chapterName: "Linear motion under variable force"},
+    {chapter: "CH24", chapterName: "Non parametric test"},
+    {chapter: "CH25", chapterName: "Continuous random variable"},
+    {chapter: "CH26", chapterName: "Probability generating function"},
+    {chapter: "CH27", chapterName: "HOOK'S LAW"},
+  ],
+};
 
-await main(Biology);
+await main(FurtherMath);
