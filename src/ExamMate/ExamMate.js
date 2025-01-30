@@ -546,5 +546,60 @@ const IGCSE_ScienceCombined = {
     {chapter: "CH30", chapterName: "P6 - Electric circuits"},
   ],
 };
+const IGCSE_ESL2 = {
+  curriculum: "IGCSE",
+  subject: "English 2nd Language(0510)",
+  topics: [
+    {chapter: "CH1", chapterName: "READING"},
+    {chapter: "CH2", chapterName: "SUMMARY"},
+    {chapter: "CH3", chapterName: "LETTER - EMAIL"},
+    {chapter: "CH4", chapterName: "ARTICLE"},
+  ],
+};
+const ComputerScience1 = {
+  curriculum: "A-LEVEL",
+  subject: "Computer Science (from 2021)(9618)",
+  topics: [
+    {chapter: "CH1", chapterName: "Information Representation"},
+    {chapter: "CH2", chapterName: "Communication"},
+    {chapter: "CH3", chapterName: "Hardware"},
+    {chapter: "CH4", chapterName: "Processor Fundamentals"},
+    {chapter: "CH5", chapterName: "System Software (OS)"},
+    {chapter: "CH6", chapterName: "Security, Privacy and Data Integrity"},
+    {chapter: "CH7", chapterName: "Ethics and Ownership"},
+    {chapter: "CH8", chapterName: "Databases"},
+    {chapter: "CH9", chapterName: "Algorithm Design and Problem-Solving"},
+    {chapter: "CH10", chapterName: "Data Types and Structures"},
+    {chapter: "CH11", chapterName: "Programming"},
+    {chapter: "CH12", chapterName: "Software Development"},
+    {chapter: "CH13", chapterName: "Data Representation"},
+    {chapter: "CH14", chapterName: "Communication and Internet Technologies"},
+    {chapter: "CH15", chapterName: "Hardware and Virtual Machines"},
+    {chapter: "CH16", chapterName: "System Software (Purposes of an OS)"},
+    {chapter: "CH17", chapterName: "Security"},
+    {chapter: "CH18", chapterName: "Artificial Intelligence (AI)"},
+    {chapter: "CH19", chapterName: "Computational Thinking and Problem Solving"},
+    {chapter: "CH20", chapterName: "Further Programming"},
+  ],
+};
+const ComputerScience2 = {
+  curriculum: "A-LEVEL",
+  subject: "Computer Science(9608)",
+  topics: [
+    {chapter: "CH1", chapterName: "Information Representation"},
+    {chapter: "CH2", chapterName: "Communication and Internet Technologies"},
+    {chapter: "CH3", chapterName: "Hardware"},
+    {chapter: "CH4", chapterName: "Processor Fundamentals"},
+    {chapter: "CH5", chapterName: "System Software"},
+    {chapter: "CH6", chapterName: "Security, Privacy and Data Integrity"},
+    {chapter: "CH7", chapterName: "Ethics and Ownership"},
+    {chapter: "CH8", chapterName: "Database and Data Modeling"},
+    {chapter: "CH9", chapterName: "Algorithm Design and Problem-Solving"},
+    {chapter: "CH10", chapterName: "Data Representation"},
+    {chapter: "CH11", chapterName: "Programming"},
+    {chapter: "CH12", chapterName: "Software Development"},
+    {chapter: "CH13", chapterName: "Monitoring and Control Systems"},
+  ],
+};
 
-await main(IGCSE_ScienceCombined);
+await main(IGCSE_Chemistry);
